@@ -63,7 +63,7 @@ func main() {
 
 		if strings.ToLower(input) == "history" {
 		    utils.PrintInfo("История сообщений:")
-		    for i, msg := range messages {
+		    for _, msg := range messages {
 		        if msg.Role == "system" {
 		            continue
 		        }
