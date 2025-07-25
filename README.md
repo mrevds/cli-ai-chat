@@ -18,6 +18,3 @@
 - Go 1.21+
 - API ключ от [AIMLAPI](https://aimlapi.com)
 
-### Способ 1: Установка через go install
-```bash
-go install github.com/mrevds/cli-ai-chat@latest
