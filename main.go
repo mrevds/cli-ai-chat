@@ -11,18 +11,15 @@ import (
 )
 
 func main() {
-	// Получаем API ключ из переменной окружения
 	apiKey := os.Getenv("AIMLAPI_KEY")
 	if apiKey == "" {
 		utils.PrintError(fmt.Errorf("переменная окружения AIMLAPI_KEY не установлена"))
 		return
 	}
 
-	// Создаем клиент
 	client := aimlapi.NewAIMLAPIClient(apiKey)
 	model := "gpt-4o"
 
-	// Инициализируем историю сообщений
 	messages := []aimlapi.Message{
 		{
 			Role:    "system",
@@ -30,13 +27,11 @@ func main() {
 		},
 	}
 
-	// Создаем reader для ввода
 	reader := bufio.NewReader(os.Stdin)
 
-	// Показываем баннер
 	utils.PrintBanner()
 	utils.PrintInfo(fmt.Sprintf("Модель: %s", model))
-	utils.PrintInfo("Введите 'exit' для выхода, 'clear' для очистки истории, 'help' для справки")
+	utils.PrintInfo("Введите 'exit' для выхода, 'clear' для очистки истории, 'history' для просмотра истории, 'help' для справки")
 	utils.PrintSeparator()
 
 	for {
@@ -52,13 +47,11 @@ func main() {
 			continue
 		}
 
-		// Команда выхода
 		if strings.ToLower(input) == "exit" {
 			utils.PrintSuccess("До свидания!")
 			break
 		}
 
-		// Команда очистки истории
 		if strings.ToLower(input) == "clear" {
 			messages = []aimlapi.Message{{
 				Role:    "system",
@@ -68,29 +61,42 @@ func main() {
 			continue
 		}
 
-		// Команда справки
-		if strings.ToLower(input) == "help" {
-			utils.PrintInfo("Доступные команды:")
-			fmt.Println("  exit  - выход из программы")
-			fmt.Println("  clear - очистка истории чата")
-			fmt.Println("  help  - показать эту справку")
-			fmt.Println()
-			continue
+		if strings.ToLower(input) == "history" {
+		    utils.PrintInfo("История сообщений:")
+		    for i, msg := range messages {
+		        if msg.Role == "system" {
+		            continue
+		        }
+		        
+		        role := "👤"
+		        if msg.Role == "assistant" {
+		            role = "🤖"
+		        }
+		        
+		        fmt.Printf("%s %s:\n%s\n\n", role, strings.Title(msg.Role), msg.Content)
+		    }
+		    continue
 		}
 
-		// Добавляем сообщение пользователя в историю
+		if strings.ToLower(input) == "help" {
+		    utils.PrintInfo("Доступные команды:")
+		    fmt.Println("  exit    - выход из программы")
+		    fmt.Println("  clear   - очистка истории чата")
+		    fmt.Println("  history - показать историю сообщений")
+		    fmt.Println("  help    - показать эту справку")
+		    fmt.Println()
+		    continue
+		}
+
 		messages = append(messages, aimlapi.Message{
 			Role:    "user",
 			Content: input,
 		})
 
-		// Показываем индикатор загрузки
 		fmt.Printf("%s%s🔄 Обрабатываю запрос...%s\r", utils.ColorYellow, utils.ColorBold, utils.ColorReset)
 
-		// Отправляем запрос
 		response, err := client.Chat(model, messages)
 
-		// Очищаем индикатор загрузки
 		fmt.Print(strings.Repeat(" ", 30) + "\r")
 
 		if err != nil {
@@ -98,13 +104,11 @@ func main() {
 			continue
 		}
 
-		// Добавляем ответ в историю
 		messages = append(messages, aimlapi.Message{
 			Role:    "assistant",
 			Content: response,
 		})
 
-		// Выводим ответ
 		utils.PrintResponse(response)
 	}
 }
