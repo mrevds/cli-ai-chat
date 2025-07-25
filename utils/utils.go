@@ -1,61 +1,63 @@
 package utils
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
+    "fmt"
+    "strings"
 )
 
-// PrintError выводит ошибку в stderr с красным цветом (если терминал поддерживает цвета)
+// ANSI color codes
+const (
+    ColorReset  = "\033[0m"
+    ColorRed    = "\033[31m"
+    ColorGreen  = "\033[32m"
+    ColorYellow = "\033[33m"
+    ColorBlue   = "\033[34m"
+    ColorPurple = "\033[35m"
+    ColorCyan   = "\033[36m"
+    ColorWhite  = "\033[37m"
+    ColorBold   = "\033[1m"
+    ColorDim    = "\033[2m"
+)
+
+func PrintBanner() {
+    fmt.Printf("%s%s", ColorCyan, ColorBold)
+    fmt.Println("╔══════════════════════════════════════╗")
+    fmt.Println("║          🤖 AIMLAPI Chat CLI          ║")
+    fmt.Println("║                                      ║")
+    fmt.Println("║     Powered by GPT-4o & Go Lang     ║")
+    fmt.Println("╚══════════════════════════════════════╝")
+    fmt.Printf("%s", ColorReset)
+    fmt.Println()
+}
+
+func PrintPrompt() {
+    fmt.Printf("%s%s❯ %s", ColorGreen, ColorBold, ColorReset)
+}
+
+func PrintResponse(content string) {
+    fmt.Printf("\n%s%s🤖 Ассистент:%s\n", ColorBlue, ColorBold, ColorReset)
+    fmt.Printf("%s┌─%s\n", ColorDim, ColorReset)
+    
+    lines := strings.Split(content, "\n")
+    for _, line := range lines {
+        fmt.Printf("%s│ %s%s\n", ColorDim, line, ColorReset)
+    }
+    fmt.Printf("%s└─%s\n\n", ColorDim, ColorReset)
+}
+
 func PrintError(err error) {
-	fmt.Fprintf(os.Stderr, "\033[31mError: %v\033[0m\n", err)
+    fmt.Printf("%s%s❌ Ошибка: %v%s\n\n", ColorRed, ColorBold, err, ColorReset)
 }
 
-// PrintSuccess выводит успешное сообщение с зеленым цветом
+func PrintInfo(message string) {
+    fmt.Printf("%s%sℹ️  %s%s\n", ColorYellow, ColorBold, message, ColorReset)
+}
+
 func PrintSuccess(message string) {
-	fmt.Printf("\033[32m%s\033[0m\n", message)
+    fmt.Printf("%s%s✅ %s%s\n", ColorGreen, ColorBold, message, ColorReset)
 }
 
-// FormatResponse форматирует ответ от API для красивого вывода
-func FormatResponse(response string) string {
-	// Убираем лишние пробелы и переносы строк
-	response = strings.TrimSpace(response)
-
-	// Добавляем отступы для каждого абзаца
-	lines := strings.Split(response, "\n")
-	for i, line := range lines {
-		if line != "" {
-			lines[i] = "  " + line
-		}
-	}
-
-	return strings.Join(lines, "\n")
-}
-
-// IsEmptyInput проверяет, является ли ввод пользователя пустым
-func IsEmptyInput(input string) bool {
-	return strings.TrimSpace(input) == ""
-}
-
-// GetUserInput получает ввод от пользователя с обработкой многострочного ввода
-func GetUserInput(prompt string) (string, error) {
-	fmt.Print(prompt)
-
-	var lines []string
-	scanner := bufio.NewScanner(os.Stdin)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			break // Пустая строка завершает ввод
-		}
-		lines = append(lines, line)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return "", fmt.Errorf("ошибка чтения ввода: %v", err)
-	}
-
-	return strings.Join(lines, "\n"), nil
+func PrintSeparator() {
+    fmt.Printf("%s%s\n", ColorDim, strings.Repeat("─", 50))
+    fmt.Printf("%s", ColorReset)
 }
